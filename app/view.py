@@ -110,7 +110,6 @@ class MainWindow(QMainWindow):
 
     def open_cap_file(self, filepath=False):
         if filepath is False:
-            print(2)
             options = QFileDialog.Options()
             filepath, _ = QFileDialog.getOpenFileName(
                 self, "Открыть файл", "",
@@ -154,7 +153,7 @@ class MainWindow(QMainWindow):
             delete(self.mdi_splitter.widget(1))
         try:
             VidGraphWidget(
-                self.ctrl, ['line'], self, self.mdi_splitter)
+                self.ctrl, ['data_vi'], self, self.mdi_splitter)
         except KeyError:
             self.send_notify(
                 'предупреждение',
@@ -187,7 +186,6 @@ class MainWindow(QMainWindow):
         '''
         if not self.mdi.subWindowList():
             return
-        print(self.mdi.width(), self.mdi.height())
         width = self.mdi.width()
         heigth = self.mdi.height() // len(self.mdi.subWindowList())
         pnt = [0, 0]

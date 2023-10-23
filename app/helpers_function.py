@@ -26,7 +26,6 @@ def get_actions_list() -> list:
         Action('about_action', 'О программе', None,
                'О программе', None, False, 'add_cat')
     ]
-    print(list_action)
     return list_action
 
 

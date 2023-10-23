@@ -12,22 +12,22 @@ class DataController:
         if self._data is None:
             return None
         if on_time_index:
-            data = self._data.iloc[self.time_index]['line']
+            data = self._data.iloc[self.time_index]['data_vi']
             time = np.arange(len(data))
-            return pd.DataFrame({'time':time, 'line':data})
-        return self._data.drop('line', axis=1)
+            return pd.DataFrame({'time':time, 'data_vi':data})
+        return self._data.drop('data_vi', axis=1)
         
    
     def get_fake_data(self) -> pd.DataFrame:
         #временные данные
         time = np.arange(0, 10, 0.1)
         sin_values = np.sin(time)
-        line_values = [np.random.rand(25) for _ in time]
+        data_vi = [np.random.rand(25) for _ in time]
         df = pd.DataFrame(
             {
                 'time': time, 
                 'sin': sin_values, 
-                'line': line_values
+                'data_vi': data_vi
             })
         return df
     

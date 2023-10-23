@@ -30,24 +30,26 @@ def get_data_from_file(filepath):
             print("Ошибка при распаковке данных пакета:", e)
 
     result_array = np.array(result_array)
-    # result['data_vi'] = result_array[:, 0:512]
-    result['at'] = result_array[:, 512:513]
-    result['kom_p'] = result_array[:, 513:514]
-    result['sharu_mean'] = result_array[:, 514:515]
-    result['sharu_dev'] = result_array[:, 515:516]
-    result['pto1_mean'] = result_array[:, 516:517]
-    result['zad_strob_prm'] = result_array[:, 517:518]
-    result['md_zad'] = result_array[:, 518:519]
-    result['E_H_out'] = result_array[:, 519:520]
-    result['E_A_out'] = result_array[:, 520:521]
-    result['E_B_out'] = result_array[:, 521:522]
-    result['E_G_out'] = result_array[:, 522:523]
+    result['data_vi'] = [arr[0:1024] for arr in result_array]
+    result['at'] = np.concatenate(result_array[:, 1024:1025])
+    result['kom_p'] = np.concatenate(result_array[:, 1025:1026])
+    result['sharu_mean'] = np.concatenate(result_array[:, 1026:1027])
+    result['sharu_dev'] = np.concatenate(result_array[:, 1027:1028])
+    result['pto1_mean'] = np.concatenate(result_array[:, 1028:1029])
+    result['pto1_dev'] = np.concatenate(result_array[:, 1029:1030])
+    result['zad_strob_prm'] = np.concatenate(result_array[:, 1030:1031])
+    result['md_zad'] = np.concatenate(result_array[:, 1031:1032])
+    result['E_H_out'] = np.concatenate(result_array[:, 1032:1033])
+    result['E_A_out'] = np.concatenate(result_array[:, 1033:1034])
+    result['E_B_out'] = np.concatenate(result_array[:, 1034:1035])
+    result['E_G_out'] = np.concatenate(result_array[:, 1035:1036])
+    result['time'] = np.arange(len(result['data_vi']))
 
     return pd.DataFrame(result)
 
 
 def unpack_data(packet_data):
-    data = struct.unpack('>566H', packet_data)
+    data = struct.unpack('>2x1024B12H82x', packet_data)
     return data
 
 
