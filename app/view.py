@@ -20,10 +20,11 @@ class MainWindow(QMainWindow):
         self.app = app
         self.ctrl = DataController()
         self.notify: notificator = notificator()
+        self.vid_graph_window = None
         self.initUI()
 
         # temp
-        # self.open_cap_file('test.cap')
+        self.open_cap_file('test.cap')
 
     def initUI(self) -> None:
         self.generate_actions(get_actions_list())
@@ -148,21 +149,24 @@ class MainWindow(QMainWindow):
         self.track_graph()
 
     def create_vid_graph(self):
-        self.horizontal_windows()
-        if self.mdi_splitter.widget(1):
-            delete(self.mdi_splitter.widget(1))
-        try:
-            VidGraphWidget(
-                self.ctrl, ['data_vi'], self, self.mdi_splitter)
-        except KeyError:
-            self.send_notify(
-                'предупреждение',
-                'Нет данных для отображения',
-            )
+        if self.vid_graph_window is None:
+            if self.mdi_splitter.widget(1):
+                delete(self.mdi_splitter.widget(1))
+            try:
+                self.vid_graph_window = VidGraphWidget(
+                    self.ctrl, ['data_vi'], self, self.mdi_splitter)
+            except KeyError:
+                self.send_notify(
+                    'предупреждение',
+                    'Нет данных для отображения',
+                )
+                return
+            self.mdi_splitter.setSizes([200, 120])
+            QCoreApplication.processEvents()
+            self.horizontal_windows()
             return
-        self.mdi_splitter.setSizes([200, 120])
-        QCoreApplication.processEvents()
-        self.horizontal_windows()
+        self.vid_graph_window.set_new_data()
+        
 
     def track_graph(self):
         link = self.mdi.findChild(pg.PlotWidget)

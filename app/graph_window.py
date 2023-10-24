@@ -116,13 +116,16 @@ class BaseGraphWidget(pg.PlotWidget):
         if event.button() == Qt.MouseButton.RightButton:
             self.context_menu(event)
             event.accept()
-        if event.button() == Qt.MouseButton.LeftButton and event.double():
+        if (event.button() == Qt.MouseButton.LeftButton 
+            and event.double()
+            and event.modifiers() != Qt.KeyboardModifier.ControlModifier):
             if self.isMaximized():
                 self.showNormal()
             else:
                 self.showMaximized()
             event.accept()
         if event.button() == Qt.MouseButton.MiddleButton:
+            event.accept()
             self.close()
 
 
@@ -213,6 +216,13 @@ class BaseGraphWidget(pg.PlotWidget):
 class VidGraphWidget(BaseGraphWidget):
     def get_data(self):
         return self.ctrl.get_data(on_time_index=True)
+    def set_new_data(self):
+        data = self.get_data()
+        self.curves['data_vi']['curve'].setData(data.time, data['data_vi'])
+    def close(self):
+        self.main_window.vid_graph_window = None
+        self.deleteLater()
+        self.main_window.horizontal_windows()
     
 class NormalGraphWidget(BaseGraphWidget):
     def mouse_click_event(self, event) -> None:
