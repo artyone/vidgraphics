@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         self.initUI()
 
         # temp
-        self.open_cap_file('test.cap')
+        # self.open_cap_file('test.cap')
 
     def initUI(self) -> None:
         self.generate_actions(get_actions_list())

@@ -33,8 +33,8 @@ class DataController:
     
     def read_data_from_file(self, filepath: str) -> pd.DataFrame:
         self.filepath = filepath
-        # self._data = get_data_from_file(filepath)
-        self._data = self.get_fake_data()
+        self._data = get_data_from_file(filepath)
+        #self._data = self.get_fake_data()
 
     def get_value_on_pos_x(self, pos_x=None):
         time_col = self._data['time']

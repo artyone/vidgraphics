@@ -1,0 +1,81 @@
+[
+    {
+        "name": "data_vi",
+        "group": true,
+        "quantity": 1024,
+        "type": "uint8"
+    },
+    {
+        "name": "at",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "kom_p",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "sharu_mean",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "sharu_dev",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "pto1_mean",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "pto1_dev",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "zad_strob_prm",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "md_zad",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "E_H_out",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "E_A_out",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "E_B_out",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    },
+    {
+        "name": "E_G_out",
+        "group": false,
+        "quantity": 1,
+        "type": "uitn16"
+    }
+
+]
