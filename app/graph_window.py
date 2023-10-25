@@ -3,10 +3,7 @@ from functools import partial
 import pandas as pd
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QAction, QDoubleSpinBox, QFrame, QHBoxLayout,
-                             QMdiSubWindow, QMenu, QPushButton, QSlider,
-                             QVBoxLayout, QWidget)
-from PyQt5.sip import delete
+from PyQt5.QtWidgets import QAction, QMenu
 
 
 class BaseGraphWidget(pg.PlotWidget):
@@ -38,7 +35,7 @@ class BaseGraphWidget(pg.PlotWidget):
         self.create_graph()
 
     def get_data(self):
-        return self.ctrl.get_data()
+        return self.ctrl.get_data_main()
 
     def create_graph(self) -> None:
         '''
@@ -215,14 +212,15 @@ class BaseGraphWidget(pg.PlotWidget):
     
 class VidGraphWidget(BaseGraphWidget):
     def get_data(self):
-        return self.ctrl.get_data(on_time_index=True)
+        return self.ctrl.get_data_vi()
     def set_new_data(self):
         data = self.get_data()
         self.curves['data_vi']['curve'].setData(data.time, data['data_vi'])
     def close(self):
         self.main_window.vid_graph_window = None
-        self.deleteLater()
+        self.hide()
         self.main_window.horizontal_windows()
+        self.deleteLater()
     
 class NormalGraphWidget(BaseGraphWidget):
     def mouse_click_event(self, event) -> None:

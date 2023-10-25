@@ -1,17 +1,18 @@
-import pyqtgraph as pg
-from PyQt5.QtCore import QCoreApplication, QProcess, QSettings, Qt
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
-                             QMainWindow, QMdiArea, QMenu, QMdiSubWindow,
-                             QWidget, QSplitter, QToolBar, QFileDialog,
-                             QVBoxLayout)
-from .helpers_function import get_actions_list, get_menu_dict, get_toolbar_list
 from functools import partial
-from .controller import DataController
-from .left_menu import Left_Menu_Tree
-from .graph_window import NormalGraphWidget, VidGraphWidget
+
+import pyqtgraph as pg
 from notificator import notificator
 from notificator.alingments import BottomRight
+from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
+                             QMainWindow, QMdiArea, QMdiSubWindow, QMenu,
+                             QSplitter, QToolBar)
 from PyQt5.sip import delete
+
+from .controller import DataController
+from .graph_window import NormalGraphWidget, VidGraphWidget
+from .helpers_function import get_actions_list, get_menu_dict, get_toolbar_list
+from .left_menu import Left_Menu_Tree
 
 
 class MainWindow(QMainWindow):
@@ -107,7 +108,13 @@ class MainWindow(QMainWindow):
         self.addToolBar(position, toolbar)
 
     def clear_main_window(self):
-        self.ctrl = None
+        self.ctrl = DataController()
+        self.tree_widget.clear()
+        self.tree_widget.hide()
+        for window in self.mdi.subWindowList():
+            window.deleteLater()
+        self.vid_graph_window.close()
+        self.vid_graph_window = None
 
     def open_cap_file(self, filepath=False):
         if filepath is False:
@@ -190,6 +197,7 @@ class MainWindow(QMainWindow):
         '''
         if not self.mdi.subWindowList():
             return
+        QCoreApplication.processEvents()
         width = self.mdi.width()
         heigth = self.mdi.height() // len(self.mdi.subWindowList())
         pnt = [0, 0]

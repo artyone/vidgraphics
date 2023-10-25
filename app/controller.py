@@ -1,6 +1,8 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from .model import get_data_from_file
+
 
 class DataController:
     def __init__(self) -> None:
@@ -8,17 +10,30 @@ class DataController:
         self.filepath = None
         self.time_index = None
 
-    def get_data(self, on_time_index=False) -> pd.DataFrame:
+    def get_all_data(self) -> pd.DataFrame:
+        return self._data
+    
+    def get_data_main(self):
         if self._data is None:
             return None
-        if on_time_index:
-            data = self._data.iloc[self.time_index]['data_vi']
-            time = np.arange(len(data))
-            return pd.DataFrame({'time':time, 'data_vi':data})
         return self._data.drop('data_vi', axis=1)
+    
+    def get_data_vi(self):
+        data = self._data.iloc[self.time_index]['data_vi']
+        time = np.arange(len(data))
+        return pd.DataFrame({'time':time, 'data_vi':data})
+    
+    def get_headers_for_left_menu(self):
+        if self._data is None:
+            return None
+        all_headers = list(self._data.columns)
+        all_headers.remove('data_vi')
+        all_headers.remove('time')
+        all_headers = [(name, len(self._data[name])) for name in all_headers]
+        return all_headers
         
    
-    def get_fake_data(self) -> pd.DataFrame:
+    def set_fake_data(self) -> pd.DataFrame:
         #временные данные
         time = np.arange(0, 10, 0.1)
         sin_values = np.sin(time)

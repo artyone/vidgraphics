@@ -19,7 +19,7 @@ def get_actions_list() -> list:
                'Очистить все данные в программе.', None, False, 'clear_main_window'),
         Action('open_cap_file_action', 'Открыть *.cap', QStyle.SP_FileIcon,
                'Открыть cap файл с данными.', None, False, 'open_cap_file'),
-        Action('create_graph_action', 'Создать графики', QStyle.SP_DialogHelpButton,
+        Action('create_graph_action', 'Создать графики', QStyle.SP_ArrowRight,
                'Построить графики по отмеченным данным', None, False, 'create_normal_graph'),
         Action('exit_action', 'Закрыть приложение', QStyle.SP_TitleBarCloseButton,
                'Закрыть приложение навсегда', 'Ctrl+Q', False, 'close'),

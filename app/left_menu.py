@@ -1,12 +1,8 @@
-from collections import defaultdict
-
-import pandas as pd
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QColor, QFont, QIcon
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QHeaderView,
-                             QInputDialog, QMainWindow, QMenu, QTableWidget,
-                             QTableWidgetItem, QTreeWidget, QTreeWidgetItem,
+from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtWidgets import (QApplication, QMenu, QTreeWidget, QTreeWidgetItem,
                              QTreeWidgetItemIterator)
+
 
 class Left_Menu_Tree(QTreeWidget):
     '''Виджет для отображения списка данных в виде дерева'''
@@ -33,16 +29,16 @@ class Left_Menu_Tree(QTreeWidget):
         Returns:
             None
         """
-        if self.ctrl.get_data() is None:
+        headers: list = self.ctrl.get_headers_for_left_menu()
+        if headers is None:
             self.hide()
             return
         self.hide()
         self.clear()
-        data: pd.DataFrame = self.ctrl.get_data()
-        for item_name in sorted(data.columns):
-            count = len(data[item_name])
+        headers.sort(key=lambda x: x[0])
+        for name, count in headers:
             tree_item = QTreeWidgetItem(self)
-            tree_item.setText(0, item_name)
+            tree_item.setText(0, name)
             tree_item.setText(1, str(count))
             tree_item.setFont(1, QFont('Arial', 8, 1, True))
             if count:
@@ -99,19 +95,6 @@ class Left_Menu_Tree(QTreeWidget):
         
         menu.exec_(self.viewport().mapToGlobal(position))
 
-
-    def get_all_columns(self) -> list:
-        """
-        Позволяет получить список уникальных имен всех элементов дерева.
-        """
-        columns = []
-        data = self.ctrl.get_data()
-        for address in data.values():
-            for dataframe in address.values():
-                columns.extend(list(dataframe.columns))
-        unique_columns = list(set(columns))
-        sorted_columns = sorted(unique_columns)
-        return sorted_columns
 
     def get_selected_elements(self) -> list:
         '''
