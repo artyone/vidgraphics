@@ -3,10 +3,10 @@ from functools import partial
 import pyqtgraph as pg
 from notificator import notificator
 from notificator.alingments import BottomRight
-from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtCore import QCoreApplication, Qt, QTimer
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
                              QMainWindow, QMdiArea, QMdiSubWindow, QMenu,
-                             QSplitter, QToolBar)
+                             QSplitter, QToolBar, QSpinBox)
 from PyQt5.sip import delete
 
 from .controller import DataController
@@ -23,9 +23,10 @@ class MainWindow(QMainWindow):
         self.notify: notificator = notificator()
         self.vid_graph_window = None
         self.initUI()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_graph_on_timer)
 
-        # temp
-        # self.open_cap_file('test.cap')
+        # self.open_cap_file('1.pcap')
 
     def initUI(self) -> None:
         self.generate_actions(get_actions_list())
@@ -92,6 +93,11 @@ class MainWindow(QMainWindow):
         self.statusbar.addPermanentWidget(self.last_file_label)
 
     def generate_tool_bar(self, toolbar_list: list) -> None:
+
+        self.spin_box = QSpinBox()
+        self.spin_box.setMinimum(1)
+        self.spin_box.setValue(10)
+
         position = Qt.LeftToolBarArea
         toolbar = QToolBar('main')
         for elem in toolbar_list:
@@ -171,7 +177,6 @@ class MainWindow(QMainWindow):
             self.horizontal_windows()
             return
         self.vid_graph_window.set_new_data()
-        
 
     def track_graph(self):
         link = self.mdi.findChild(pg.PlotWidget)
@@ -224,6 +229,22 @@ class MainWindow(QMainWindow):
             duracion=duration,
             onclick=None
         )
+
+    def play_graph(self):
+        if self.vid_graph_window is None:
+            self.send_notify('предупреждение', 'Откройте график vi')
+            self.play_graph_action.setChecked(False)
+            return
+        if self.play_graph_action.isChecked():
+            self.timer.start(self.spin_box.value() * 50)
+        else:
+            self.timer.stop()
+
+    def update_graph_on_timer(self):
+        self.ctrl.update_time_index()
+        self.update_all_vertical_line()
+        self.vid_graph_window.set_new_data()
+
     def resizeEvent(self, ev) -> None:
         self.horizontal_windows()
         return super().resizeEvent(ev)

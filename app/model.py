@@ -12,11 +12,13 @@ def get_data_from_file(filepath):
 
     bytes_str = b''.join(bytes_list)
 
-    custom_dtype = np.dtype([('pack_header', np.uint8, 42),
-                            ('null_bytes', np.uint8, 2),
-                            ('data_vi', np.uint8, 1024),
-                            ('data_main', np.uint16, 12),
-                            ('null_bytes2', np.uint8, 82)])
+    custom_dtype = np.dtype([
+        ('pack_header', np.uint8, 42),
+        ('null_bytes', np.uint8, 2),
+        ('data_vi', np.uint8, 1024),
+        ('data_main', np.uint16, 12),
+        ('null_bytes2', np.uint8, 82)
+    ])
 
     data = np.frombuffer(bytes_str, dtype=custom_dtype, count=-1)
 
