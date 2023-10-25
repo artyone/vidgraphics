@@ -93,7 +93,6 @@ class MainWindow(QMainWindow):
 
     def generate_tool_bar(self, toolbar_list: list) -> None:
         position = Qt.LeftToolBarArea
-
         toolbar = QToolBar('main')
         for elem in toolbar_list:
             if elem is None:
@@ -121,7 +120,7 @@ class MainWindow(QMainWindow):
             options = QFileDialog.Options()
             filepath, _ = QFileDialog.getOpenFileName(
                 self, "Открыть файл", "",
-                "All Files (*);;Python Files (*.py)", options=options
+                "Pcap Files (*.pcap);;All Files (*);;", options=options
             )
         if filepath:
             self.ctrl.read_data_from_file(filepath)
@@ -134,7 +133,6 @@ class MainWindow(QMainWindow):
         pass
 
     def create_normal_graph(self, custom_selected=False):
-
         tree_selected = custom_selected if custom_selected else self.tree_widget.get_selected_elements()
         sub_window = QMdiSubWindow(self.mdi)
         sub_window.setAttribute(Qt.WA_DeleteOnClose, True)
