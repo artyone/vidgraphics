@@ -218,3 +218,6 @@ class MainWindow(QMainWindow):
             duracion=duration,
             onclick=None
         )
+    def resizeEvent(self, ev) -> None:
+        self.horizontal_windows()
+        return super().resizeEvent(ev)
