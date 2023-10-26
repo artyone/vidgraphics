@@ -1,4 +1,6 @@
 from collections import namedtuple
+
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QStyle
 
 
@@ -17,13 +19,23 @@ def get_actions_list() -> list:
     list_action = [
         Action('clear_all_action', 'Очистить окно', None,
                'Очистить все данные в программе.', None, False, 'clear_main_window'),
-        Action('open_cap_file_action', 'Открыть *.cap', QStyle.SP_FileIcon,
+        Action('open_cap_file_action', 'Открыть *.cap', QStyle.SP_DesktopIcon,
                'Открыть cap файл с данными.', None, False, 'open_cap_file'),
-        Action('create_graph_action', 'Создать графики', QStyle.SP_ArrowRight,
+        Action('create_graph_action', 'Создать графики', QStyle.SP_DialogYesButton,  # QStyle.SP_ArrowRight
                'Построить графики по отмеченным данным', None, False, 'create_normal_graph'),
         Action('play_graph_action', 'Включить движение', QStyle.SP_MediaPlay,
-               'Включить/Выключить движение данных на графиках', None, True, 'play_graph'),
-        Action('exit_action', 'Закрыть приложение', QStyle.SP_TitleBarCloseButton,
+               'Включить/Выключить движение данных на графиках', Qt.Key_Space, True, 'play_graph'),
+        Action('go_to_next_time_action', 'Следующий кадр', QStyle.SP_MediaSeekForward,
+               'Переключиться на следующий кадр', None, False, ('go_to_next_time', False)),
+        Action('go_to_back_time_action', 'Предыдущий кадр', QStyle.SP_MediaSeekBackward,
+               'Переключиться на предыдущий кадр', None, False, ('go_to_next_time', True)),
+        Action('go_to_next_time_500_action', 'Следующая секунда', QStyle.SP_MediaSkipForward,
+               'Переключиться на кадр следующей секунды', None, False, ('go_to_next_time_500', False)),
+        Action('go_to_back_time_500_action', 'Предыдущая секунда', QStyle.SP_MediaSkipBackward,
+               'Переключиться на кадр предыдущей секунды', None, False, ('go_to_next_time_500', True)),
+        Action('hide_left_menu_action', 'Скрыть левое меню', QStyle.SP_DialogResetButton,
+               'Скрыть/показать левое меню', None, True, 'hide_left_menu'),
+        Action('exit_action', 'Закрыть приложение', QStyle.SP_LineEditClearButton,
                'Закрыть приложение навсегда', 'Ctrl+Q', False, 'close'),
         Action('about_action', 'О программе', None,
                'О программе', None, False, 'add_cat')
@@ -43,11 +55,16 @@ def get_menu_dict() -> dict:
         Submenu('Файл', None): [
             'clear_all_action',
             'open_cap_file_action',
+            'hide_left_menu_action',
             'exit_action'
         ],
         Submenu('Графики', None): [
             'create_graph_action',
             'play_graph_action',
+            'go_to_next_time_action',
+            'go_to_back_time_action',
+            'go_to_next_time_500_action',
+            'go_to_back_time_500_action',
         ],
         Submenu('Настройки', None): [
             'about_action'
@@ -67,7 +84,12 @@ def get_toolbar_list() -> list:
         'open_cap_file_action',
         'create_graph_action',
         'play_graph_action',
-        'spin_box',
+        'slider',
+        'go_to_next_time_action',
+        'go_to_back_time_action',
+        'go_to_next_time_500_action',
+        'go_to_back_time_500_action',
+        'hide_left_menu_action',
         None,
         'exit_action',
     ]

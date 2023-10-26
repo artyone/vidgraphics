@@ -7,14 +7,13 @@ from PyQt5.QtWidgets import (QApplication, QMenu, QTreeWidget, QTreeWidgetItem,
 class Left_Menu_Tree(QTreeWidget):
     '''Виджет для отображения списка данных в виде дерева'''
 
-    def __init__(self, controller, parent) -> None:
+    def __init__(self, parent) -> None:
         '''__init__
 
         Args:
             parent (view.MainWindow): основное окно программы
         '''
         super().__init__()
-        self.ctrl = controller
         self.parent = parent
         self.setColumnCount(2)
         self.setHeaderLabels(['Название', 'Количество'])
@@ -29,7 +28,7 @@ class Left_Menu_Tree(QTreeWidget):
         Returns:
             None
         """
-        headers: list = self.ctrl.get_headers_for_left_menu()
+        headers: list = self.parent.ctrl.get_headers_for_left_menu()
         if headers is None:
             self.hide()
             return
@@ -92,9 +91,8 @@ class Left_Menu_Tree(QTreeWidget):
         menu = QMenu(self)
         uncheck_all_action = menu.addAction('Снять все отметки')
         uncheck_all_action.triggered.connect(self.update_check_box)
-        
-        menu.exec_(self.viewport().mapToGlobal(position))
 
+        menu.exec_(self.viewport().mapToGlobal(position))
 
     def get_selected_elements(self) -> list:
         '''

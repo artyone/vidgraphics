@@ -10,12 +10,13 @@ class BaseGraphWidget(pg.PlotWidget):
     def __init__(self,
                  controller,
                  tree_selected,
-                 main_window, 
+                 main_window,
                  parent,
                  background='default',
                  plotItem=None,
                  **kwargs):
         super().__init__(parent, background, plotItem, **kwargs)
+        # pg.setConfigOptions(useOpenGL=True)
         self.parent = parent
         self.ctrl = controller
         self.main_window = main_window
@@ -52,7 +53,7 @@ class BaseGraphWidget(pg.PlotWidget):
             raise ValueError
 
         self.showGrid(x=True, y=True)  # показывать сетку
-        self.apply_theme('white')
+        self.apply_theme('black')
 
         for item in self.columns:
             data_for_graph = self.data.dropna(
@@ -66,7 +67,7 @@ class BaseGraphWidget(pg.PlotWidget):
                 ox,
                 oy,
                 name=item,
-                pen=pen
+                pen=pen,
             )
             self.curves[f'{item}'] = {
                 'curve': curve, 'pen': pen
@@ -113,9 +114,9 @@ class BaseGraphWidget(pg.PlotWidget):
         if event.button() == Qt.MouseButton.RightButton:
             self.context_menu(event)
             event.accept()
-        if (event.button() == Qt.MouseButton.LeftButton 
+        if (event.button() == Qt.MouseButton.LeftButton
             and event.double()
-            and event.modifiers() != Qt.KeyboardModifier.ControlModifier):
+                and event.modifiers() != Qt.KeyboardModifier.ControlModifier):
             if self.isMaximized():
                 self.showNormal()
             else:
@@ -124,7 +125,6 @@ class BaseGraphWidget(pg.PlotWidget):
         if event.button() == Qt.MouseButton.MiddleButton:
             event.accept()
             self.close()
-
 
     def context_menu(self, event) -> None:
         '''
@@ -209,19 +209,24 @@ class BaseGraphWidget(pg.PlotWidget):
             data['curve'].setSymbolPen(data['pen'])
         else:
             data['curve'].setSymbol(None)
-    
+
+
 class VidGraphWidget(BaseGraphWidget):
     def get_data(self):
         return self.ctrl.get_data_vi()
+
     def set_new_data(self):
         data = self.get_data()
         self.curves['data_vi']['curve'].setData(data.time, data['data_vi'])
+
     def close(self):
         self.main_window.vid_graph_window = None
         self.hide()
         self.main_window.horizontal_windows()
+        self.main_window.remove_all_vertical_line()
         self.deleteLater()
-    
+
+
 class NormalGraphWidget(BaseGraphWidget):
     def mouse_click_event(self, event) -> None:
         if event.button() == Qt.MouseButton.LeftButton and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
@@ -244,17 +249,26 @@ class NormalGraphWidget(BaseGraphWidget):
         self.addItem(self.region_item)
         self.main_window.update_all_vertical_line()
 
-
     def update_vertical_line(self):
         if self.region_item is not None:
             self.removeItem(self.region_item)
             self.region_item = None
-        pen = pg.mkPen('yellow', width=2)
         coordinate = self.ctrl.get_value_on_pos_x()
+        pen = pg.mkPen('yellow', width=2)
         self.region_item = pg.InfiniteLine(
             coordinate, movable=False, pen=pen)
         self.addItem(self.region_item)
 
+    def move_to_vertical_line(self):
+        coordinate = self.ctrl.get_value_on_pos_x()
+        xrange = self.viewRange()[0]
+        raz = coordinate - (xrange[0] + xrange[1]) / 2
+        self.setXRange(xrange[0] + raz, xrange[1] + raz, padding=0)
+
+    def remove_vertical_line(self):
+        if self.region_item is not None:
+            self.removeItem(self.region_item)
+            self.region_item = None
 
     def close(self):
         self.parent.close()

@@ -32,7 +32,3 @@ def get_data_from_file(filepath):
     df['time'] = np.arange(0, len(df)*0.002, 0.002)
 
     return df
-
-
-
-
