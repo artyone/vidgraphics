@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 
-def get_data_from_file(filepath):
+def get_data_from_file(filepath: str) -> pd.DataFrame:
     with open(filepath, 'rb') as f:
         pcap = dpkt.pcap.Reader(f)
         bytes_list = [

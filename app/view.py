@@ -27,28 +27,32 @@ class MainWindow(QMainWindow):
         self.timer_is_running = False
         self.timer.timeout.connect(self.update_graph_on_timer)
 
-        self.open_cap_file('2.pcap')
+        # self.open_cap_file('2.pcap')
 
     def initUI(self) -> None:
-        self.generate_actions(get_actions_list())
-        self.generate_menu(self.menuBar(), get_menu_dict())
-        self.generate_tool_bar(get_toolbar_list())
-        self.create_status_bar()
-        self.mdi = QMdiArea()
+        actions = get_actions_list()
+        menu_dict = get_menu_dict()
+        toolbar_list = get_toolbar_list()
 
-        self.splitter = QSplitter(Qt.Horizontal)
+        self.generate_actions(actions)
+        self.generate_menu(self.menuBar(), menu_dict)
+        self.generate_tool_bar(toolbar_list)
+        self.create_status_bar()
 
         self.tree_widget = Left_Menu_Tree(self)
         self.tree_widget.hide()
-        self.splitter.addWidget(self.tree_widget)
 
+        self.mdi = QMdiArea()
         self.mdi_splitter = QSplitter(Qt.Vertical)
         self.mdi_splitter.addWidget(self.mdi)
         self.mdi_splitter.setContentsMargins(0, 0, 0, 0)
+
+        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter.addWidget(self.tree_widget)
         self.splitter.addWidget(self.mdi_splitter)
 
         self.setCentralWidget(self.splitter)
-        # self.showMaximized()
+        self.showMaximized()
 
     def generate_actions(self, action_list: list) -> None:
         for action in action_list:
@@ -94,7 +98,6 @@ class MainWindow(QMainWindow):
         self.statusbar.addPermanentWidget(self.last_file_label)
 
     def generate_tool_bar(self, toolbar_list: list) -> None:
-
         self.slider = QSlider()
         self.slider.setFixedSize(40, 100)
         self.slider.setMaximum(2000)
@@ -104,20 +107,21 @@ class MainWindow(QMainWindow):
         self.slider.valueChanged.connect(self.slider_handler)
 
         position = Qt.LeftToolBarArea
-        toolbar = QToolBar('main')
+        tb = QToolBar('main')
         for elem in toolbar_list:
             if elem is None:
-                toolbar.addSeparator()
-                continue
-            var = getattr(self, elem)
-            if isinstance(var, QAction):
-                toolbar.addAction(var)
+                tb.addSeparator()
             else:
-                toolbar.addWidget(var)
-        toolbar.setMovable(False)
-        self.addToolBar(position, toolbar)
+                var = getattr(self, elem)
+                if isinstance(var, QAction):
+                    tb.addAction(var)
+                else:
+                    tb.addWidget(var)
+        tb.setMovable(False)
+        self.addToolBar(position, tb)
 
-    def clear_main_window(self):
+    def clear_main_window(self) -> None:
+        self.stop_play_graph()
         self.ctrl = DataController()
         self.tree_widget.hide()
         self.tree_widget.update_check_box()
@@ -126,40 +130,39 @@ class MainWindow(QMainWindow):
         if self.vid_graph_window:
             self.vid_graph_window.close()
         self.vid_graph_window = None
-        self.stop_play_graph()
 
-    def slider_handler(self):
+
+    def slider_handler(self) -> None:
         if self.timer_is_running:
             self.timer.stop()
             self.play_graph()
 
-    def open_cap_file(self, filepath=False):
+    def open_cap_file(self, filepath: bool | str = False) -> None:
         self.clear_main_window()
-        if filepath is False:
-            options = QFileDialog.Options()
+        if not filepath:
             filepath, _ = QFileDialog.getOpenFileName(
-                self, "Открыть файл", "",
-                "Pcap Files (*.pcap);;All Files (*);;", options=options
-            )
-        if filepath:
-            self.ctrl.read_data_from_file(filepath)
-            self.last_file_label.setText(
-                f'Текущий файл: {self.ctrl.filepath}'
-            )
-            self.tree_widget.update_check_box()
+                self, "Открыть файл", "", "Pcap Files (*.pcap);;All Files (*);;")
+            if not filepath:
+                return
 
-    def add_cat(self):
+        self.ctrl.read_data_from_file(filepath)
+        self.last_file_label.setText(f'Текущий файл: {self.ctrl.filepath}')
+        self.tree_widget.update_check_box()
+
+    def add_cat(self) -> None:
         pass
 
-    def create_normal_graph(self, custom_selected=False):
-        tree_selected = custom_selected if custom_selected else self.tree_widget.get_selected_elements()
+    def create_normal_graph(self, tree_selected=False):
+        if not tree_selected:
+            tree_selected = self.tree_widget.get_selected_elements()
+
         sub_window = QMdiSubWindow(self.mdi)
         sub_window.setAttribute(Qt.WA_DeleteOnClose, True)
         sub_window.setWindowFlags(Qt.FramelessWindowHint)
         try:
             graph_window = NormalGraphWidget(
                 self.ctrl, tree_selected, self, sub_window)
-            graph_window.update_vertical_line()
+            graph_window.add_vertical_line()
         except KeyError:
             self.send_notify(
                 'предупреждение',
@@ -174,44 +177,46 @@ class MainWindow(QMainWindow):
         self.track_graph()
 
     def create_vid_graph(self):
-        if self.vid_graph_window is None:
-            if self.mdi_splitter.widget(1):
-                delete(self.mdi_splitter.widget(1))
-            try:
-                self.vid_graph_window = VidGraphWidget(
-                    self.ctrl, ['data_vi'], self, self.mdi_splitter)
-            except KeyError:
-                self.send_notify(
-                    'предупреждение',
-                    'Нет данных для отображения',
-                )
-                return
-            self.mdi_splitter.setSizes([200, 120])
-            QCoreApplication.processEvents()
-            self.horizontal_windows()
+        if self.vid_graph_window is not None:
+            self.vid_graph_window.set_new_data()
             return
-        self.vid_graph_window.set_new_data()
+        if self.mdi_splitter.widget(1):
+            delete(self.mdi_splitter.widget(1))
+        try:
+            self.vid_graph_window = VidGraphWidget(
+                self.ctrl, ['data_vi'], self, self.mdi_splitter)
+        except KeyError:
+            self.send_notify(
+                'предупреждение',
+                'Нет данных для отображения',
+            )
+            return
+        self.mdi_splitter.setSizes([200, 120])
+        QCoreApplication.processEvents()
+        self.horizontal_windows()
 
-    def track_graph(self):
+    def track_graph(self) -> None:
         link = self.mdi.findChild(pg.PlotWidget)
         childs = self.mdi.subWindowList()
-        for child in childs:
+
+        for i, child in enumerate(childs, 1):
             widget = child.findChild(NormalGraphWidget)
             widget.setXLink(link)
             widget.getAxis('bottom').setStyle(showValues=False)
-        last_child = childs[-1].findChild(NormalGraphWidget)
-        last_child.getAxis('bottom').setStyle(showValues=True)
+            if i == len(childs):
+                widget.getAxis('bottom').setStyle(showValues=True)
 
-    def update_all_vertical_line(self):
+    def update_all_vertical_line(self) -> None:
         childs = self.mdi.subWindowList()
         for child in childs:
             widget = child.findChild(NormalGraphWidget)
-            widget.update_vertical_line()
+            widget.add_vertical_line()
 
-    def move_all_graphics_to_vertical_line(self):
+    def move_all_graphics_to_vertical_line(self) -> None:
         childs = self.mdi.subWindowList()
         for child in childs:
             widget = child.findChild(NormalGraphWidget)
+            widget.add_vertical_line()
             widget.move_to_vertical_line()
 
     def remove_all_vertical_line(self):
@@ -227,12 +232,14 @@ class MainWindow(QMainWindow):
         if not self.mdi.subWindowList():
             return
         QCoreApplication.processEvents()
-        width = self.mdi.width()
-        heigth = self.mdi.height() // len(self.mdi.subWindowList())
+        window_count = len(self.mdi.subWindowList())
+        window_width = self.mdi.width()
+        window_height = self.mdi.height() // window_count
         x, y = 0, 0
+
         for window in self.mdi.subWindowList():
-            window.setGeometry(x, y, width, heigth)
-            y += heigth
+            window.setGeometry(x, y, window_width, window_height)
+            y += window_height
 
     def send_notify(self, type: str, txt: str) -> None:
         '''
@@ -240,13 +247,13 @@ class MainWindow(QMainWindow):
         '''
         notify = self.notify.info
         duration = 5
-        if type == 'предупреждение':
-            notify = self.notify.warning
-        if type == 'успех':
-            notify = self.notify.sucess
-            duration = 5
-        if type == 'ошибка':
-            notify = self.notify.critical
+        match type:
+            case 'успех':
+                notify = self.notify.sucess
+            case 'ошибка':
+                notify = self.notify.critical
+            case _:
+                notify = self.notify.warning
         notify(
             Title=type.title(),
             Message=txt,
@@ -279,8 +286,6 @@ class MainWindow(QMainWindow):
         self.timer_is_running = False
 
     def update_graph_on_timer(self):
-        if not self.vid_graph_window:
-            self.create_vid_graph()
         try:
             self.ctrl.set_next_time_index()
         except StopIteration:
@@ -289,34 +294,21 @@ class MainWindow(QMainWindow):
             self.play_graph_action.setIcon(
                 self.style().standardIcon(QStyle.SP_MediaPlay))
             return
-        self.update_all_vertical_line()
+
         self.move_all_graphics_to_vertical_line()
         self.vid_graph_window.set_new_data()
 
-    def go_to_next_time(self, backward=False):
+    def go_to_next_time(self, backward=False, count=1):
         if not self.vid_graph_window:
             self.create_vid_graph()
-        if self.timer_is_running:
-            self.stop_play_graph()
+
         try:
-            self.ctrl.set_next_time_index(backward=backward)
+            self.ctrl.set_next_time_index(backward, count)
         except StopIteration:
             self.send_notify('Предупреждение', 'Конец файла достигнут')
-            return
-        self.update_all_vertical_line()
-        self.move_all_graphics_to_vertical_line()
-        self.vid_graph_window.set_new_data()
-
-    def go_to_next_time_500(self, backward=False):
-        if not self.vid_graph_window:
-            self.create_vid_graph()
-        try:
-            self.ctrl.set_next_time_index(500, backward)
-        except StopIteration:
-            self.send_notify('Предупреждение', 'Конец файла достигнут')
+            self.update_all_vertical_line()
             return
 
-        self.update_all_vertical_line()
         self.move_all_graphics_to_vertical_line()
         self.vid_graph_window.set_new_data()
 
@@ -324,9 +316,11 @@ class MainWindow(QMainWindow):
         if self.tree_widget.isVisible():
             self.tree_widget.hide()
             self.horizontal_windows()
+            self.hide_left_menu_action.setChecked(True)
         else:
             self.tree_widget.show()
             self.horizontal_windows()
+            self.hide_left_menu_action.setChecked(False)
 
     def resizeEvent(self, ev) -> None:
         self.horizontal_windows()

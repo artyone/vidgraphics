@@ -58,7 +58,7 @@ class DataController:
             self._time_index = (time_col - pos_x).abs().idxmin()
         return time_col.iloc[self._time_index]
 
-    def set_next_time_index(self, num=1, backward=False):
+    def set_next_time_index(self, backward=False, num=1):
         if backward:
             self._time_index -= num
         else:
