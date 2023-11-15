@@ -6,26 +6,26 @@ from .model import get_data_from_file
 
 class DataController:
     def __init__(self) -> None:
-        self._data = None
+        self._data: None | pd.DataFrame = None
         self.filepath = None
         self._time_index = 0
 
-    def get_all_data(self) -> pd.DataFrame:
+    def get_all_data(self) -> pd.DataFrame | None:
         return self._data
 
-    def get_data_main(self):
+    def get_data_main(self) -> pd.DataFrame | None:
         if self._data is None:
             return None
         return self._data.drop('data_vi', axis=1)
 
-    def get_data_vi(self):
+    def get_data_vi(self) -> pd.DataFrame | None:
         if self._data is None:
             return None
         data = self._data.iloc[self._time_index]['data_vi']
         time = np.arange(len(data))
         return pd.DataFrame({'time': time, 'data_vi': data})
 
-    def get_headers_for_left_menu(self):
+    def get_headers_for_left_menu(self) -> list[tuple[str, int]] | None:
         if self._data is None:
             return None
         all_headers = list(self._data.columns)
@@ -47,18 +47,22 @@ class DataController:
             })
         return df
 
-    def read_data_from_file(self, filepath: str) -> pd.DataFrame:
+    def read_data_from_file(self, filepath: str) -> None :
         self.filepath = filepath
         self._data = get_data_from_file(filepath)
         # self._data = self.get_fake_data()
 
     def get_value_on_pos_x(self, pos_x=None):
+        if self._data is None:
+            return None
         time_col = self._data['time']
         if pos_x:
             self._time_index = (time_col - pos_x).abs().idxmin()
         return time_col.iloc[self._time_index]
 
-    def set_next_time_index(self, backward=False, num=1):
+    def set_next_time_index(self, backward=False, num=1) -> None:
+        if self._data is None:
+            raise ValueError
         if backward:
             self._time_index -= num
         else:
