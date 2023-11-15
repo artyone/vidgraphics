@@ -285,7 +285,7 @@ class MainWindow(QMainWindow):
         self.timer.stop()
         self.timer_is_running = False
 
-    def update_graph_on_timer(self):
+    def update_graph_on_timer(self) -> None:
         try:
             self.ctrl.set_next_time_index()
         except StopIteration:

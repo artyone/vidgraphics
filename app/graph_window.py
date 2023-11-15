@@ -191,7 +191,7 @@ class VidGraphWidget(BaseGraphWidget):
     def get_data(self):
         return self.ctrl.get_data_vi()
 
-    def set_new_data(self):
+    def set_new_data(self) -> None:
         data = self.get_data()
         self.curves['data_vi']['curve'].setData(data.time, data['data_vi'])
 
@@ -234,7 +234,7 @@ class NormalGraphWidget(BaseGraphWidget):
         coordinate = self.ctrl.get_value_on_pos_x()
         xrange = self.viewRange()[0]
         raz = coordinate - (xrange[0] + xrange[1]) / 2
-        self.setXRange(xrange[0] + raz, xrange[1] + raz, padding=0)
+        self.setXRange(xrange[0] + raz, xrange[1] + raz)
 
     def remove_vertical_line(self):
         if self.region_item is not None:
