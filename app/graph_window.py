@@ -234,7 +234,7 @@ class NormalGraphWidget(BaseGraphWidget):
         coordinate = self.ctrl.get_value_on_pos_x()
         xrange = self.viewRange()[0]
         raz = coordinate - (xrange[0] + xrange[1]) / 2
-        self.setXRange(xrange[0] + raz, xrange[1] + raz)
+        self.setXRange(xrange[0] + raz, xrange[1] + raz, padding=0)
 
     def remove_vertical_line(self):
         if self.region_item is not None:
