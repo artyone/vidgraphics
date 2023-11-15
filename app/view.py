@@ -126,7 +126,7 @@ class MainWindow(QMainWindow):
         self.tree_widget.hide()
         self.tree_widget.update_check_box()
         for window in self.mdi.subWindowList():
-            window.deleteLater()
+            window.close()
         if self.vid_graph_window:
             self.vid_graph_window.close()
         self.vid_graph_window = None
@@ -141,11 +141,14 @@ class MainWindow(QMainWindow):
         self.clear_main_window()
         if not filepath:
             filepath, _ = QFileDialog.getOpenFileName(
-                self, "Открыть файл", "", "Pcap Files (*.pcap);;All Files (*);;")
+                self, "Открыть файл", "", "All Files (*);;")
             if not filepath:
                 return
-
-        self.ctrl.read_data_from_file(filepath)
+        try:
+            self.ctrl.read_data_from_file(filepath)
+        except:
+            self.send_notify('ошибка', 'Невозможно открыть файл')
+            return
         self.last_file_label.setText(f'Текущий файл: {self.ctrl.filepath}')
         self.tree_widget.update_check_box()
 

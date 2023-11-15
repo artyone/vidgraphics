@@ -1,14 +1,23 @@
 import dpkt
 import numpy as np
 import pandas as pd
+from scapy.all import *
 
 
 def get_data_from_file(filepath: str) -> pd.DataFrame:
     with open(filepath, 'rb') as f:
-        pcap = dpkt.pcap.Reader(f)
-        bytes_list = [
-            pkt for _, pkt in pcap if len(pkt) == 1174
-        ]
+        try:
+            pcap = dpkt.pcap.Reader(f)
+            bytes_list = [
+                pkt for _, pkt in pcap if len(pkt) == 1174
+            ]
+
+        except:
+            packets  = rdpcap(filepath)
+            bytes_list = [
+                bytes(pkt) for pkt in packets if len(pkt) == 1174
+            ]
+
 
     bytes_str = b''.join(bytes_list)
 
