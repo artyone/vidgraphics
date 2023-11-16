@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         self.mdi_splitter = QSplitter(Qt.Vertical)
         self.mdi_splitter.addWidget(self.mdi)
         self.mdi_splitter.setContentsMargins(0, 0, 0, 0)
+        self.mdi_splitter.splitterMoved.connect(self.horizontal_windows)
 
         self.splitter = QSplitter(Qt.Horizontal)
         self.splitter.addWidget(self.tree_widget)
