@@ -316,7 +316,8 @@ class MainWindow(QMainWindow):
             return
 
         self.move_all_graphics_to_vertical_line()
-        self.vid_graph_window.set_new_data()
+        if self.vid_graph_window is not None:
+            self.vid_graph_window.set_new_data()
 
     def go_to_next_time(self, backward=False, count=1):
         if not self.vid_graph_window:
