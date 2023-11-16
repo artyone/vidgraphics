@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 
@@ -47,10 +49,27 @@ class DataController:
             })
         return df
 
-    def read_data_from_file(self, filepath: str) -> None :
+    def read_data_from_file(self, filepath: str) -> None:
         self.filepath = filepath
         self._data = get_data_from_file(filepath)
         # self._data = self.get_fake_data()
+
+    def read_data_from_dir(self, dirpath: str) -> None:
+        self.filepath = dirpath
+        data = []
+        files = [f for f in os.listdir(dirpath) if os.path.isfile(os.path.join(dirpath, f))]
+        for file in files:
+            filepath = os.path.join(dirpath, file)
+            try:
+                file_data = get_data_from_file(filepath)
+            except:
+                continue
+            else:
+                data.append(file_data)
+        self._data = pd.concat(data, ignore_index=True)
+        if self._data is None:
+            raise ValueError
+        self._data['time'] = np.arange(0, len(self._data)*0.002, 0.002)
 
     def get_value_on_pos_x(self, pos_x=None):
         if self._data is None:

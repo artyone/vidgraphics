@@ -19,8 +19,10 @@ def get_actions_list() -> list:
     list_action = [
         Action('clear_all_action', 'Очистить окно', None,
                'Очистить все данные в программе.', None, False, 'clear_main_window'),
-        Action('open_cap_file_action', 'Открыть *.cap', QStyle.SP_DesktopIcon,
+        Action('open_cap_file_action', 'Открыть *.cap', QStyle.SP_FileIcon,
                'Открыть cap файл с данными.', None, False, 'open_cap_file'),
+        Action('open_dir_action', 'Открыть *.cap', QStyle.SP_DirIcon,
+               'Открыть директорию с данными.', None, False, 'open_dir'),
         Action('create_graph_action', 'Создать графики', QStyle.SP_DialogYesButton,  # QStyle.SP_ArrowRight
                'Построить графики по отмеченным данным', None, False, 'create_normal_graph'),
         Action('play_graph_action', 'Включить движение', QStyle.SP_MediaPlay,
@@ -55,6 +57,7 @@ def get_menu_dict() -> dict:
         Submenu('Файл', None): [
             'clear_all_action',
             'open_cap_file_action',
+            'open_dir_action',
             'hide_left_menu_action',
             'exit_action'
         ],
@@ -82,6 +85,7 @@ def get_toolbar_list() -> list:
     """
     list_toolbar = [
         'open_cap_file_action',
+        'open_dir_action',
         'create_graph_action',
         'play_graph_action',
         'slider',

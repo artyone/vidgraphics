@@ -7,6 +7,7 @@ from PyQt5.QtCore import QCoreApplication, Qt, QTimer
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
                              QMainWindow, QMdiArea, QMdiSubWindow, QMenu,
                              QSlider, QSplitter, QStyle, QToolBar)
+from PyQt5.QtGui import QIcon
 from PyQt5.sip import delete
 
 from .controller import DataController
@@ -30,6 +31,8 @@ class MainWindow(QMainWindow):
         # self.open_cap_file('2.pcap')
 
     def initUI(self) -> None:
+        self.setWindowTitle('ViGraphics v2023.11.16')
+        self.setWindowIcon(QIcon('icon.ico'))
         actions = get_actions_list()
         menu_dict = get_menu_dict()
         toolbar_list = get_toolbar_list()
@@ -130,7 +133,7 @@ class MainWindow(QMainWindow):
         if self.vid_graph_window:
             self.vid_graph_window.close()
         self.vid_graph_window = None
-
+        self.last_file_label.setText('')
 
     def slider_handler(self) -> None:
         if self.timer_is_running:
@@ -142,14 +145,28 @@ class MainWindow(QMainWindow):
         if not filepath:
             filepath, _ = QFileDialog.getOpenFileName(
                 self, "Открыть файл", "", "All Files (*);;")
-            if not filepath:
-                return
+        if not filepath:
+            return
         try:
             self.ctrl.read_data_from_file(filepath)
-        except:
+        except FileExistsError:
             self.send_notify('ошибка', 'Невозможно открыть файл')
             return
         self.last_file_label.setText(f'Текущий файл: {self.ctrl.filepath}')
+        self.tree_widget.update_check_box()
+
+    def open_dir(self):
+        self.clear_main_window()
+        folder_path = QFileDialog.getExistingDirectory(
+            self, 'Выберите папку', '/')
+        if folder_path:
+            try:
+                self.ctrl.read_data_from_dir(folder_path)
+            except:
+                self.send_notify(
+                    'ошибка', 'Невозможно открыть папку или в папке нет файлов')
+                return
+        self.last_file_label.setText(f'Текущая папка: {self.ctrl.filepath}')
         self.tree_widget.update_check_box()
 
     def add_cat(self) -> None:
