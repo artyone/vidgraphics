@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from .model import get_data_from_file
+from .model import get_data_from_file_1, get_data_from_file_2
 
 
 class DataController:
@@ -49,19 +49,25 @@ class DataController:
             })
         return df
 
-    def read_data_from_file(self, filepath: str) -> None:
+    def read_data_from_file(self, filepath: str, num_func: str) -> None:
         self.filepath = filepath
-        self._data = get_data_from_file(filepath)
+        if num_func == '1':
+            self._data = get_data_from_file_1(filepath)
+        else:
+            self._data = get_data_from_file_2(filepath)
         # self._data = self.get_fake_data()
 
-    def read_data_from_dir(self, dirpath: str) -> None:
+    def read_data_from_dir(self, dirpath: str, num_func: str) -> None:
         self.filepath = dirpath
         data = []
         files = [f for f in os.listdir(dirpath) if os.path.isfile(os.path.join(dirpath, f))]
         for file in files:
             filepath = os.path.join(dirpath, file)
             try:
-                file_data = get_data_from_file(filepath)
+                if num_func == '1':
+                    file_data = get_data_from_file_1(filepath)
+                else:
+                    file_data = get_data_from_file_2(filepath)
             except:
                 continue
             else:

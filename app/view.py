@@ -6,7 +6,7 @@ from notificator.alingments import BottomRight
 from PyQt5.QtCore import QCoreApplication, Qt, QTimer
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
                              QMainWindow, QMdiArea, QMdiSubWindow, QMenu,
-                             QSlider, QSplitter, QStyle, QToolBar)
+                             QSlider, QSplitter, QStyle, QToolBar, QComboBox)
 from PyQt5.QtGui import QIcon
 from PyQt5.sip import delete
 
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         # self.open_cap_file('2.pcap')
 
     def initUI(self) -> None:
-        self.setWindowTitle('ViGraphics v2023.11.16')
+        self.setWindowTitle('ViGraphics v2024.02.06')
         self.setWindowIcon(QIcon('icon.ico'))
         actions = get_actions_list()
         menu_dict = get_menu_dict()
@@ -112,6 +112,9 @@ class MainWindow(QMainWindow):
 
         position = Qt.LeftToolBarArea
         tb = QToolBar('main')
+        self.choose_unpack_func_cmbbox = QComboBox()
+        self.choose_unpack_func_cmbbox.addItems(['1', '2'])
+        tb.addWidget(self.choose_unpack_func_cmbbox)
         for elem in toolbar_list:
             if elem is None:
                 tb.addSeparator()
@@ -149,8 +152,8 @@ class MainWindow(QMainWindow):
         if not filepath:
             return
         try:
-            self.ctrl.read_data_from_file(filepath)
-        except FileExistsError:
+            self.ctrl.read_data_from_file(filepath, self.choose_unpack_func_cmbbox.currentText())
+        except:
             self.send_notify('ошибка', 'Невозможно открыть файл')
             return
         self.last_file_label.setText(f'Текущий файл: {self.ctrl.filepath}')
@@ -162,7 +165,7 @@ class MainWindow(QMainWindow):
             self, 'Выберите папку', '/')
         if folder_path:
             try:
-                self.ctrl.read_data_from_dir(folder_path)
+                self.ctrl.read_data_from_dir(folder_path, self.choose_unpack_func_cmbbox.currentText())
             except:
                 self.send_notify(
                     'ошибка', 'Невозможно открыть папку или в папке нет файлов')
@@ -285,9 +288,9 @@ class MainWindow(QMainWindow):
         )
 
     def play_graph(self):
-        if self.vid_graph_window is None:
-            self.create_vid_graph()
         if self.play_graph_action.isChecked():
+            if self.vid_graph_window is None:
+                self.create_vid_graph()
             self.start_play_graph()
         else:
             self.stop_play_graph()

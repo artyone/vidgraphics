@@ -71,6 +71,9 @@ class BaseGraphWidget(pg.PlotWidget):
             self.addItem(curve)
             self.colors.append(self.colors.pop(0))
 
+        self.display_text = pg.TextItem(text='',color=(255,255,255),anchor=(-0.1, 1))
+        self.addItem(self.display_text)
+  
     def apply_theme(self, color):
         self.setBackground(color)
         legend_color = 'black' if color == 'white' else 'white'
@@ -88,14 +91,19 @@ class BaseGraphWidget(pg.PlotWidget):
     def mouse_moved(self, ev):
         if self.sceneBoundingRect().contains(ev):
             mousePoint = self.getPlotItem().vb.mapSceneToView(ev)
+            self.getPlotItem().vb.disableAutoRange()
             self.pos_x = float(mousePoint.x())
             self.pos_y = float(mousePoint.y())
-            self.setWindowTitle(
-                f'{self.title}       x: {self.pos_x:.3f}, y: {self.pos_y:.3f}                 '
-            )
-            self.setToolTip(
-                f'x: <b>{self.pos_x:.2f}</b>,<br> y: <b>{self.pos_y:.3f}</b>'
-            )
+            self.display_text.setPos(self.pos_x,self.pos_y)
+            self.display_text.setText(f'y: {self.pos_y:.2f}') #x: {self.pos_x:.2f}, 
+            self.clear_other_display_text()
+
+    def clear_other_display_text(self):
+        childs = self.main_window.mdi.subWindowList()
+        for i, child in enumerate(childs, 1):
+            widget = child.findChild(NormalGraphWidget)
+            if widget is not self:
+                widget.display_text.setText('')
 
     def mouse_click_event(self, event) -> None:
         '''
