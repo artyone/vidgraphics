@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
             self, 'Выберите папку', '/')
         if folder_path:
             try:
-                self.ctrl.read_data_from_dir(folder_path, self.choose_unpack_func_cmbbox.currentText())
+                self.ctrl.read_data_from_dir(folder_path)
             except:
                 self.send_notify(
                     'ошибка', 'Невозможно открыть папку или в папке нет файлов')

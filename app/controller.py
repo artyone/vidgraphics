@@ -49,7 +49,7 @@ class DataController:
             })
         return df
 
-    def read_data_from_file(self, filepath: str, num_func: str) -> None:
+    def read_data_from_file(self, filepath: str, num_func) -> None:
         self.filepath = filepath
         if num_func == '1':
             self._data = get_data_from_file_1(filepath)
@@ -57,17 +57,14 @@ class DataController:
             self._data = get_data_from_file_2(filepath)
         # self._data = self.get_fake_data()
 
-    def read_data_from_dir(self, dirpath: str, num_func: str) -> None:
+    def read_data_from_dir(self, dirpath: str) -> None:
         self.filepath = dirpath
         data = []
         files = [f for f in os.listdir(dirpath) if os.path.isfile(os.path.join(dirpath, f))]
         for file in files:
             filepath = os.path.join(dirpath, file)
             try:
-                if num_func == '1':
-                    file_data = get_data_from_file_1(filepath)
-                else:
-                    file_data = get_data_from_file_2(filepath)
+                file_data = get_data_from_file2(filepath)
             except:
                 continue
             else:

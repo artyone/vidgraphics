@@ -103,6 +103,17 @@ def get_data_from_file_1(filepath: str) -> pd.DataFrame:
         'u_6V_m_gnd', 'u_12V_0075A', 'u_12V_0075A_gnd', 'u_6V', 
         'u_6V_gnd', 'u_6V_m_028A', 'u_6V_m_028A_gnd'
     ]
+    coef_main = [ 
+        0.01, 1, 1, 1, 1, 
+        1, 1, 1, 1, 1, 
+        0.00244, 0.00244, 1, 0.00488, 1, 
+        1, 0.00488, 0.00244, 0.00244, 0.00244, 
+        1, 0.1, 1, 1, 0.1, 
+        1, 1, 1, 1, 1, 
+        1, 1, 1, 1, 1, 
+        1, 1, 1, 1, 1, 
+        1, 
+    ]
 
     columns_arinc = [
         'ARINC_081', 'ARINC_082', 'ARINC_083', 'ARINC_084', 
@@ -111,44 +122,48 @@ def get_data_from_file_1(filepath: str) -> pd.DataFrame:
     ]
     columns_bits = [
         [
-            'send_ARINC', 'u27_p', 'u27_ground', 'u27_A', 'u27_A1', 'u36B_m', 'u36A_m', 'u15_m'
+            'z_send_ARINC', 'z_u27_p', 'z_u27_ground', 'z_u27_A', 'z_u27_A1', 'z_u36B_m', 'z_u36A_m', 'z_u15_m'
         ], 
         [
-            'u15v_p', 'u36C_m', 'u15V_bk', 'off_vob', 'off_V', 'off_ASU', 'block_VP', 'off_CU'
+            'z_u15v_p', 'z_u36C_m', 'z_u15V_bk', 'z_off_vob', 'z_off_V', 'z_off_ASU', 'z_block_VP', 'z_off_CU'
         ], 
         [
-            'vkl_rrch', 'PR_27v', 'block_AB', 'bridge27V', 'VPG_27V', 'komm_ASD', 'block_DP', 'sinhro'
+            'z_vkl_rrch', 'z_PR_27v', 'z_block_AB', 'z_bridge27V', 'z_VPG_27V', 'z_komm_ASD', 'z_block_DP', 'z_sinhro'
         ], 
         [
-            'RIP', 'D5', 'DVA1', 'DVA2', 'DVA3', 'DVA4', 'kom_vn', 'kontr_toka_rzp'
+            'z_RIP', 'z_D5', 'z_DVA1', 'z_DVA2', 'z_DVA3', 'z_DVA4', 'z_kom_vn', 'z_kontr_toka_rzp'
         ], 
         [
-            'kontr_zahv_apch', 'kontr_vn', 'EhV', 'AV', 'PR_U505', 'Zg_27V', 'Kom_No', 'VK'
+            'z_kontr_zahv_apch', 'z_kontr_vn', 'z_EhV', 'z_AV', 'z_PR_U505', 'z_Zg_27V', 'z_Kom_No', 'z_VK'
         ], 
         [
-            'komm_PP', 'kom_mem_ASD', 'ASP', 'Tg_RAZI', 'MD_k', 'Tg_ZHO', 'ZH_ZH', 'Si_k'
+            'z_komm_PP', 'z_kom_mem_ASD', 'z_ASP', 'z_Tg_RAZI', 'z_MD_k', 'z_Tg_ZHO', 'z_ZH_ZH', 'z_Si_k'
         ],
         [
-            'PPH', 'Sh_P2', 'izp_k', 'izr_k', 'strob_RZ', 'zona_1', 'zona_2', 'rpo'
+            'z_PPH', 'z_Sh_P2', 'z_izp_k', 'z_izr_k', 'z_strob_RZ', 'z_zona_1', 'z_zona_2', 'z_rpo'
         ], 
         [
-            'AR', 'kom_rg_rv', 'sz', 'kom_ASD_k', 'Tg_ZH_Zh', 'kom_vp', 'null_1', 'null_2'
+            'z_AR', 'z_kom_rg_rv', 'z_sz', 'z_kom_ASD_k', 'z_Tg_ZH_Zh', 'z_kom_vp', 'z_null_1', 'z_null_2'
         ],
         [
-            'kontrol_27V_m_pit', 'kontrol_27V_m', 'kontrol_27V_p_pit', 'kontrol_27V_p', 'kontrol_27V_p_A0', 'kontrol_27V_p_A1', 'kontrol_27V_p_A2', 'kontrol_27V_p_A3'
+            'z_kontrol_27V_m_pit', 'z_kontrol_27V_m', 'z_kontrol_27V_p_pit', 'z_kontrol_27V_p', 'z_kontrol_27V_p_A0', 'z_kontrol_27V_p_A1', 'z_kontrol_27V_p_A2', 'kontrol_27V_p_A3'
         ]
     ]
 
     df = pd.DataFrame(data['data_main'], columns=columns_main, dtype=np.int16)
+    for names, coef in zip(columns_main, coef_main):
+        df[names] = df[names] * coef
     df['data_vi'] = list(data['data_vi'])
     df['time_src'] = data['time_src'] / 50_000
     for i, col in enumerate(columns_arinc):
         df[col] = data['arinc_data'][:,i].astype(np.uint16)
     
-    for i, val in enumerate(columns_bits):
-        res = unpack_bits(val, data['bit_data'][:, i])
-        for key, value in res.items():
-            df['z_' + key] = value.astype(np.bool_)
+    for i, names in enumerate(columns_bits):
+        res = unpack_bits(names, data['bit_data'][:, i])
+        bits_df = pd.DataFrame(data=res)
+        df = df.join(bits_df)
+        # for key, value in res.items():
+        #     df['z_' + key] = value
 
     df['time'] = np.arange(0, len(df)*0.002, 0.002)
 

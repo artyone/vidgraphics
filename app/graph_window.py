@@ -94,6 +94,12 @@ class BaseGraphWidget(pg.PlotWidget):
             self.getPlotItem().vb.disableAutoRange()
             self.pos_x = float(mousePoint.x())
             self.pos_y = float(mousePoint.y())
+            # self.setWindowTitle(
+            #     f'{self.title}       x: {self.pos_x:.3f}, y: {self.pos_y:.3f}                 '
+            # )
+            # self.setToolTip(
+            #     f'x: <b>{self.pos_x:.2f}</b>,<br> y: <b>{self.pos_y:.3f}</b>'
+            # )
             self.display_text.setPos(self.pos_x,self.pos_y)
             self.display_text.setText(f'y: {self.pos_y:.2f}') #x: {self.pos_x:.2f}, 
             self.clear_other_display_text()
@@ -124,6 +130,10 @@ class BaseGraphWidget(pg.PlotWidget):
         elif event.button() == Qt.MouseButton.MiddleButton:
             event.accept()
             self.close()
+
+    def closeEvent(self, ev):
+        self.main_window.track_graph()
+        super().closeEvent(ev)
 
     def context_menu(self, event) -> None:
         '''
